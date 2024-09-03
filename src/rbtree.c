@@ -109,6 +109,7 @@ void insert_fix(rbtree *t, node_t *z) {
       }
     }
   }
+  t->root->color = RBTREE_BLACK;
 }
 
 node_t *rbtree_insert(rbtree *t, const key_t key) {
@@ -133,7 +134,7 @@ node_t *rbtree_insert(rbtree *t, const key_t key) {
   z->parent = y;
   if (y == t->nil){
     t->root = z;
-  } else if (x == y->left){
+  } else if (key < y->key){
     y->left = z;
   } else {
     y->right = z;
@@ -228,6 +229,7 @@ void erase_fix(rbtree *t, node_t *x) {
         }
         s->color = x->parent->color;
         x->parent->color = RBTREE_BLACK;
+        s->right->color = RBTREE_BLACK;
         rotate_left(t,x->parent);
         x = t->root;
       }
@@ -252,12 +254,13 @@ void erase_fix(rbtree *t, node_t *x) {
         }
         s->color = x->parent->color;
         x->parent->color = RBTREE_BLACK;
+        s->left->color = RBTREE_BLACK;
         rotate_right(t,x->parent);
         x = t->root;
       }
     }
   }
-  t->root->color = RBTREE_BLACK;
+  x->color = RBTREE_BLACK;
 }
 
 int rbtree_erase(rbtree *t, node_t *z) {
