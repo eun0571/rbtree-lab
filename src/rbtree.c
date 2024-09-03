@@ -28,9 +28,11 @@ void delete_rbtree(rbtree *t) {
     } else if (x == x->parent->left){
       x = x->parent;
       free(x->left);
+      x->left = t->nil;
     } else {
       x = x->parent;
       free(x->right);
+      x->right = t->nil;
     }
   }
   free(t->nil);
@@ -218,7 +220,6 @@ void erase_fix(rbtree *t, node_t *x) {
       }
       if (s->left->color == RBTREE_BLACK && s->right->color == RBTREE_BLACK) {
         s->color = RBTREE_RED;
-        x->parent->color = RBTREE_BLACK;
         x = x->parent;
       } else {
         if (s->right->color == RBTREE_BLACK) {
@@ -243,7 +244,6 @@ void erase_fix(rbtree *t, node_t *x) {
       }
       if (s->right->color == RBTREE_BLACK && s->left->color == RBTREE_BLACK) {
         s->color = RBTREE_RED;
-        x->parent->color = RBTREE_BLACK;
         x = x->parent;
       } else {
         if (s->left->color == RBTREE_BLACK) {
@@ -306,10 +306,11 @@ int inorder_travels(const rbtree *t, key_t *arr, const size_t n, int *arr_size, 
   }
   if (*arr_size<n){
     *(arr+*arr_size) = x->key;
+    (*arr_size)++;
   } else {
     return 1;
   }
-  if (inorder_travels(t,arr,n,arr_size,x->left)) {
+  if (inorder_travels(t,arr,n,arr_size,x->right)) {
     return 1;
   }
   return 0;
@@ -317,7 +318,9 @@ int inorder_travels(const rbtree *t, key_t *arr, const size_t n, int *arr_size, 
 
 int rbtree_to_array(const rbtree *t, key_t *arr, const size_t n) {
   // TODO: implement to_array
-  int *arr_size = 0;
+  int *arr_size = (int *)malloc(sizeof(int));
+  *arr_size = 0;
   inorder_travels(t,arr,n,arr_size,t->root);
+  free(arr_size);
   return 0;
 }
