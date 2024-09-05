@@ -366,6 +366,92 @@ void test_find_erase_rand(const size_t n, const unsigned int seed) {
   free(arr);
   delete_rbtree(t);
 }
+//#########################################
+void test_minmax_empty_tree() {
+  rbtree *t = new_rbtree();
+  assert(t != NULL);
+
+  node_t *min_node = rbtree_min(t);
+  node_t *max_node = rbtree_max(t);
+  
+  assert(min_node == NULL);
+  assert(max_node == NULL);
+
+  delete_rbtree(t);
+}
+
+void test_erase_all_duplicates() {
+  rbtree *t = new_rbtree();
+  assert(t != NULL);
+
+  const key_t key = 42;
+  int num_duplicates = 5;
+
+  // 동일한 키를 여러 번 삽입
+  for (int i = 0; i < num_duplicates; i++) {
+    rbtree_insert(t, key);
+  }
+
+  // 모든 중복된 키 삭제
+  for (int i = 0; i < num_duplicates; i++) {
+    node_t *p = rbtree_find(t, key);
+    assert(p != NULL);
+    rbtree_erase(t, p);
+  }
+
+  // 더 이상 키가 트리에 존재하지 않는지 확인
+  node_t *p = rbtree_find(t, key);
+  assert(p == NULL);
+
+  delete_rbtree(t);
+}
+
+void test_minmax_with_duplicates() {
+  rbtree *t = new_rbtree();
+  assert(t != NULL);
+
+  const key_t min_key = 10;
+  const key_t max_key = 50;
+
+  // 중복된 최소 및 최대 키 삽입
+  for (int i = 0; i < 3; i++) {
+    rbtree_insert(t, min_key);
+    rbtree_insert(t, max_key);
+  }
+
+  // 트리의 최소 값 확인
+  node_t *min_node = rbtree_min(t);
+  assert(min_node != NULL);
+  assert(min_node->key == min_key);
+
+  // 트리의 최대 값 확인
+  node_t *max_node = rbtree_max(t);
+  assert(max_node != NULL);
+  assert(max_node->key == max_key);
+
+  delete_rbtree(t);
+}
+
+void test_order_with_duplicates() {
+  rbtree *t = new_rbtree();
+  assert(t != NULL);
+
+  key_t keys[] = {20, 10, 30, 20, 10, 30};
+  const size_t n = sizeof(keys) / sizeof(keys[0]);
+
+  insert_arr(t, keys, n);
+
+  key_t expected[] = {10, 10, 20, 20, 30, 30};
+  key_t result[n];
+
+  rbtree_to_array(t, result, n);
+  
+  for (size_t i = 0; i < n; i++) {
+    assert(result[i] == expected[i]);
+  }
+
+  delete_rbtree(t);
+}
 
 int main(void) {
   test_init();
@@ -379,5 +465,10 @@ int main(void) {
   test_duplicate_values();
   test_multi_instance();
   test_find_erase_rand(10000, 17);
+
+  test_minmax_empty_tree();
+  test_erase_all_duplicates();
+  test_minmax_with_duplicates();
+  test_order_with_duplicates();
   printf("Passed all tests!\n");
 }
